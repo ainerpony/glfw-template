@@ -15,7 +15,8 @@ public:
     }
 
     ~Shader() {
-        glDeleteProgram(ID);
+        if (glfwGetCurrentContext() != nullptr && ID != 0)
+            glDeleteProgram(ID);
     }
 
     void use() {
