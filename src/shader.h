@@ -11,6 +11,55 @@ public:
     unsigned int ID; // Shader Program ID
 
     Shader(const char* vertexPath, const char* fragmentPath) {
+        createShader(vertexPath, fragmentPath);
+    }
+
+    ~Shader() {
+        glDeleteProgram(ID);
+    }
+
+    void use() {
+        glUseProgram(ID);
+    }
+
+    void reloadShader(const char* vertexPath, const char* fragmentPath) {
+        glDeleteProgram(ID);
+        createShader(vertexPath, fragmentPath);
+    }
+
+    // Setup uniform variable
+    void setBool(const std::string &name, bool value) const {
+        glUniform1i(glGetUniformLocation(ID, name.c_str()), (int)value);
+    }
+    void setInt(const std::string &name, int value) const {
+        glUniform1i(glGetUniformLocation(ID, name.c_str()), value);
+    }
+    void setFloat(const std::string &name, float value) const {
+        glUniform1f(glGetUniformLocation(ID, name.c_str()), value);
+    }
+
+private:
+    void checkCompileErrors(unsigned int shader, std::string type) {
+        int success;
+        char infoLog[1024];
+
+        if (type != "PROGRAM") {
+            glGetShaderiv(shader, GL_COMPILE_STATUS, &success);
+            if(!success) {
+                glGetShaderInfoLog(shader, 1024, NULL, infoLog);
+                std::cerr << "ERROR::SHADER::VERTEX::COMPILATION_FAILED\n" << infoLog << std::endl;
+            };
+        }
+        else {
+            glGetProgramiv(shader, GL_LINK_STATUS, &success);
+            if(!success) {
+                glGetProgramInfoLog(shader, 1024, NULL, infoLog);
+                std::cerr << "ERROR::SHADER::PROGRAM::LINKING_FAILED\n" << infoLog << std::endl;
+            }
+        }
+    }
+
+    void createShader(const char* vertexPath, const char* fragmentPath) {
         std::string vertexCode;
         std::string fragmentCode;
         std::ifstream vShaderFile;
@@ -65,42 +114,6 @@ public:
 
         glDeleteShader(vertex);
         glDeleteShader(fragment);
-    }
-
-    void use() {
-        glUseProgram(ID);
-    }
-
-    // Setup uniform variable
-    void setBool(const std::string &name, bool value) const {
-        glUniform1i(glGetUniformLocation(ID, name.c_str()), (int)value); 
-    }
-    void setInt(const std::string &name, int value) const { 
-        glUniform1i(glGetUniformLocation(ID, name.c_str()), value); 
-    }
-    void setFloat(const std::string &name, float value) const {
-        glUniform1f(glGetUniformLocation(ID, name.c_str()), value); 
-    }
-
-private:
-    void checkCompileErrors(unsigned int shader, std::string type) {
-        int success;
-        char infoLog[1024];
-
-        if (type != "PROGRAM") {
-            glGetShaderiv(shader, GL_COMPILE_STATUS, &success);
-            if(!success) {
-                glGetShaderInfoLog(shader, 1024, NULL, infoLog);
-                std::cerr << "ERROR::SHADER::VERTEX::COMPILATION_FAILED\n" << infoLog << std::endl;
-            };
-        }
-        else {
-            glGetProgramiv(shader, GL_LINK_STATUS, &success);
-            if(!success) {
-                glGetProgramInfoLog(shader, 1024, NULL, infoLog);
-                std::cerr << "ERROR::SHADER::PROGRAM::LINKING_FAILED\n" << infoLog << std::endl;
-            }
-        }
     }
 
 };

@@ -53,7 +53,7 @@ int main(int argc, char** argv)
     while(!glfwWindowShouldClose(window)) {
         processInput(window);
         if (glfwGetKey(window, GLFW_KEY_TAB) == GLFW_PRESS) {
-            shader = Shader((exeDir+"shader.vert").c_str(), (exeDir+"shader.frag").c_str());
+            shader.reloadShader((exeDir+"shader.vert").c_str(), (exeDir+"shader.frag").c_str());
             shader.use();
         }
 
